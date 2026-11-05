@@ -66,4 +66,6 @@ dotnet run --project Verification~/Parity.csproj -- Verification~/fixtures/parit
 
 검증 도구는 .NET 10 SDK가 필요하며 Unity 패키지 자체가 .NET 10을 요구하는 것은 아닙니다. 인질 챕터 등 비공개 실험 파일은 공개 저장소에 넣지 않았습니다. Unity 6000.6.6f1의 별도 임시 프로젝트에서 실제 패키지 임포트와 Play 모드 Runner 시험도 통과했습니다(챕터 4개, 명령 14개, 저장/복원, 상태·시작·결말 이벤트). Player/IL2CPP 및 다른 Unity 버전은 미검증입니다.
 
-라이선스/저작권 주체는 연구실 확인 전 미확정입니다. `LICENSE-DECISION.md`를 해결한 뒤 공개하세요.
+## 라이선스
+
+이 프로젝트는 [Apache License 2.0](LICENSE)에 따라 배포됩니다. 외부 의존성은 각 패키지의 라이선스를 따릅니다. [THIRD-PARTY.md](THIRD-PARTY.md)를 참조하세요.
