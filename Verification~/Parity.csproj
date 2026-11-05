@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><EnableDefaultCompileItems>false</EnableDefaultCompileItems><LangVersion>9.0</LangVersion></PropertyGroup>
+  <ItemGroup><Compile Include="Program.cs"/><Compile Include="../Runtime/Core/*.cs"/><Compile Include="../Tests/Editor/RuntimeChecks.cs"/></ItemGroup>
+  <ItemGroup Condition="'$(NewtonsoftPath)' == ''"><PackageReference Include="Newtonsoft.Json" Version="13.0.3"/></ItemGroup>
+  <ItemGroup Condition="'$(NewtonsoftPath)' != ''"><Reference Include="Newtonsoft.Json"><HintPath>$(NewtonsoftPath)</HintPath></Reference></ItemGroup>
+</Project>

@@ -1,0 +1,442 @@
+{
+  "schemaVersion": "0.6",
+  "storyId": "chapterflow-signal-lab-v1",
+  "title": "ChapterFlow 신호 실험실",
+  "gameplay": {
+    "format": "chapter-gameplay-v1",
+    "startEventId": "lobby",
+    "initialState": [
+      {
+        "ref": {
+          "symbol": "badge",
+          "args": []
+        },
+        "value": false
+      },
+      {
+        "ref": {
+          "symbol": "trust",
+          "args": []
+        },
+        "value": 0.2
+      },
+      {
+        "ref": {
+          "symbol": "evidence",
+          "args": []
+        },
+        "value": false
+      }
+    ],
+    "addedSymbols": [
+      {
+        "ref": {
+          "symbol": "evidence",
+          "args": []
+        },
+        "name": "증거 확인",
+        "meaning": "원본 기록을 실제로 확인했다.",
+        "type": "boolean",
+        "initial": false,
+        "changeMode": "irreversible"
+      },
+      {
+        "ref": {
+          "symbol": "trust",
+          "args": []
+        },
+        "name": "신뢰도",
+        "meaning": "현재 협조 의사",
+        "type": "number",
+        "initial": 0.2,
+        "changeMode": "free"
+      }
+    ],
+    "events": [
+      {
+        "id": "lobby",
+        "startTrigger": "start:lobby",
+        "entryCondition": {
+          "all": []
+        },
+        "endingId": null,
+        "signals": [
+          {
+            "id": "find_badge",
+            "label": "출입증 찾기",
+            "condition": {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "badge",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": false
+                }
+              ]
+            },
+            "effects": [
+              {
+                "ref": {
+                  "symbol": "badge",
+                  "args": []
+                },
+                "op": "set",
+                "value": true
+              }
+            ],
+            "oncePerVisit": true
+          }
+        ],
+        "exits": [
+          {
+            "to": "control",
+            "condition": {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "badge",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            },
+            "requiredSignal": "legacy:control"
+          },
+          {
+            "to": "leave",
+            "condition": {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "evidence",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": false
+                }
+              ]
+            },
+            "requiredSignal": "legacy:leave"
+          }
+        ]
+      },
+      {
+        "id": "control",
+        "startTrigger": "start:control",
+        "entryCondition": {
+          "all": [
+            {
+              "ref": {
+                "symbol": "badge",
+                "args": []
+              },
+              "op": "eq",
+              "value": true
+            }
+          ]
+        },
+        "endingId": null,
+        "signals": [
+          {
+            "id": "read_evidence",
+            "label": "원본 기록 조사",
+            "condition": {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "evidence",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": false
+                }
+              ]
+            },
+            "effects": [
+              {
+                "ref": {
+                  "symbol": "evidence",
+                  "args": []
+                },
+                "op": "set",
+                "value": true
+              }
+            ],
+            "oncePerVisit": true
+          },
+          {
+            "id": "reassure",
+            "label": "안심시키기 · 신뢰 +0.20",
+            "condition": {
+              "all": []
+            },
+            "effects": [
+              {
+                "ref": {
+                  "symbol": "trust",
+                  "args": []
+                },
+                "op": "add",
+                "value": 0.2
+              }
+            ],
+            "oncePerVisit": false
+          },
+          {
+            "id": "pressure",
+            "label": "압박하기 · 신뢰 −0.20",
+            "condition": {
+              "all": []
+            },
+            "effects": [
+              {
+                "ref": {
+                  "symbol": "trust",
+                  "args": []
+                },
+                "op": "add",
+                "value": -0.2
+              }
+            ],
+            "oncePerVisit": false
+          }
+        ],
+        "exits": [
+          {
+            "to": "cooperate",
+            "condition": {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "evidence",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "gte",
+                  "value": 0.6
+                }
+              ]
+            },
+            "requiredSignal": "legacy:cooperate"
+          },
+          {
+            "to": "independent",
+            "condition": {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "evidence",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "lt",
+                  "value": 0.6
+                }
+              ]
+            },
+            "requiredSignal": "legacy:independent"
+          },
+          {
+            "to": "leave",
+            "condition": {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "evidence",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": false
+                }
+              ]
+            },
+            "requiredSignal": "legacy:leave"
+          }
+        ]
+      },
+      {
+        "id": "cooperate",
+        "startTrigger": "start:cooperate",
+        "entryCondition": {
+          "all": [
+            {
+              "ref": {
+                "symbol": "evidence",
+                "args": []
+              },
+              "op": "eq",
+              "value": true
+            },
+            {
+              "ref": {
+                "symbol": "trust",
+                "args": []
+              },
+              "op": "gte",
+              "value": 0.6
+            }
+          ]
+        },
+        "endingId": "cooperative",
+        "signals": [],
+        "exits": []
+      },
+      {
+        "id": "independent",
+        "startTrigger": "start:independent",
+        "entryCondition": {
+          "all": [
+            {
+              "ref": {
+                "symbol": "evidence",
+                "args": []
+              },
+              "op": "eq",
+              "value": true
+            },
+            {
+              "ref": {
+                "symbol": "trust",
+                "args": []
+              },
+              "op": "lt",
+              "value": 0.6
+            }
+          ]
+        },
+        "endingId": "independent",
+        "signals": [],
+        "exits": []
+      },
+      {
+        "id": "leave",
+        "startTrigger": "start:leave",
+        "entryCondition": {
+          "all": [
+            {
+              "ref": {
+                "symbol": "evidence",
+                "args": []
+              },
+              "op": "eq",
+              "value": false
+            }
+          ]
+        },
+        "endingId": "leave",
+        "signals": [],
+        "exits": []
+      }
+    ],
+    "endings": [
+      {
+        "endingId": "cooperative",
+        "condition": {
+          "all": [
+            {
+              "ref": {
+                "symbol": "evidence",
+                "args": []
+              },
+              "op": "eq",
+              "value": true
+            },
+            {
+              "ref": {
+                "symbol": "trust",
+                "args": []
+              },
+              "op": "gte",
+              "value": 0.6
+            }
+          ]
+        }
+      },
+      {
+        "endingId": "independent",
+        "condition": {
+          "all": [
+            {
+              "ref": {
+                "symbol": "evidence",
+                "args": []
+              },
+              "op": "eq",
+              "value": true
+            },
+            {
+              "ref": {
+                "symbol": "trust",
+                "args": []
+              },
+              "op": "lt",
+              "value": 0.6
+            }
+          ]
+        }
+      },
+      {
+        "endingId": "leave",
+        "condition": {
+          "all": [
+            {
+              "ref": {
+                "symbol": "evidence",
+                "args": []
+              },
+              "op": "eq",
+              "value": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "n_lobby",
+        "title": "출입구",
+        "sceneGoal": "출입증을 찾거나 조사를 포기할 수 있습니다."
+      },
+      {
+        "id": "n_control",
+        "title": "관제실 조사",
+        "sceneGoal": "기록을 확인하고 담당자와 대화하세요. 행동 후 사건을 종료하고 다음 사건을 시작합니다."
+      },
+      {
+        "id": "n_cooperate",
+        "title": "협조를 얻어 진실 공개",
+        "sceneGoal": "증거를 확보하고 담당자의 협조를 얻었습니다."
+      },
+      {
+        "id": "n_independent",
+        "title": "단독으로 진실 공개",
+        "sceneGoal": "증거는 확보했지만 담당자의 협조 없이 나섭니다."
+      },
+      {
+        "id": "n_leave",
+        "title": "조사 중단",
+        "sceneGoal": "증거를 확보하지 않은 채 떠납니다."
+      }
+    ]
+  }
+}

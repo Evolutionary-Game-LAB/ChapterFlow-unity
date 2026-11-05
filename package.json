@@ -1,0 +1,43 @@
+{
+  "name": "com.chapterflow.runtime",
+  "version": "0.1.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Evolutionary-Game-LAB/ChapterFlow-unity.git"
+  },
+  "documentationUrl": "https://github.com/Evolutionary-Game-LAB/ChapterFlow-unity#readme",
+  "changelogUrl": "https://github.com/Evolutionary-Game-LAB/ChapterFlow-unity/blob/HEAD/CHANGELOG.md",
+  "bugs": {
+    "url": "https://github.com/Evolutionary-Game-LAB/ChapterFlow-unity/issues"
+  },
+  "displayName": "ChapterFlow Runtime",
+  "description": "Import ChapterFlow chapters and drive explicit gameplay signals, event end/start, and save/load in Unity.",
+  "unity": "2022.3",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
+  },
+  "samples": [
+    {
+      "displayName": "ChapterFlow Quick Start",
+      "description": "An offline branching example and a scene creation menu.",
+      "path": "Samples~/QuickStart"
+    }
+  ],
+  "files": [
+    "Runtime",
+    "Editor",
+    "Samples~",
+    "Tests",
+    "schemas",
+    "Verification~/Parity.csproj",
+    "Verification~/Program.cs",
+    "Verification~/fixtures",
+    "README.md",
+    "CHANGELOG.md",
+    "CONTRACT.md",
+    "LICENSE-DECISION.md",
+    "THIRD-PARTY.md",
+    "*.meta",
+    "VALIDATION.md"
+  ]
+}

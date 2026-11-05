@@ -1,0 +1,989 @@
+[
+  {
+    "name": "synthetic-22",
+    "chapter": {
+      "format": "chapter-gameplay-v1",
+      "startEventId": "a",
+      "initialState": [
+        {
+          "ref": {
+            "symbol": "knowledge",
+            "args": []
+          },
+          "value": false
+        },
+        {
+          "ref": {
+            "symbol": "trust",
+            "args": []
+          },
+          "value": 0.2
+        },
+        {
+          "ref": {
+            "symbol": "door",
+            "args": []
+          },
+          "value": false
+        }
+      ],
+      "addedSymbols": [
+        {
+          "ref": {
+            "symbol": "knowledge",
+            "args": []
+          },
+          "name": "지식",
+          "meaning": "증거 확인",
+          "type": "boolean",
+          "initial": false,
+          "changeMode": "irreversible"
+        }
+      ],
+      "endings": [
+        {
+          "endingId": "done",
+          "condition": {
+            "all": [
+              {
+                "ref": {
+                  "symbol": "knowledge",
+                  "args": []
+                },
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "a",
+          "startTrigger": "start:a",
+          "entryCondition": {
+            "all": []
+          },
+          "endingId": null,
+          "signals": [
+            {
+              "id": "bundle",
+              "label": "조사",
+              "condition": {
+                "all": [
+                  {
+                    "ref": {
+                      "symbol": "knowledge",
+                      "args": []
+                    },
+                    "op": "eq",
+                    "value": false
+                  }
+                ]
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "knowledge",
+                    "args": []
+                  },
+                  "op": "set",
+                  "value": true
+                },
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "add",
+                  "value": 0.1
+                }
+              ],
+              "oncePerVisit": true
+            },
+            {
+              "id": "door",
+              "label": "열기",
+              "condition": {
+                "all": []
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "door",
+                    "args": []
+                  },
+                  "op": "set",
+                  "value": true
+                }
+              ],
+              "oncePerVisit": false
+            },
+            {
+              "id": "reverse",
+              "label": "취소",
+              "condition": {
+                "all": []
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "knowledge",
+                    "args": []
+                  },
+                  "op": "set",
+                  "value": false
+                }
+              ],
+              "oncePerVisit": false
+            },
+            {
+              "id": "raise",
+              "label": "증가",
+              "condition": {
+                "all": []
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "add",
+                  "value": 0.8
+                }
+              ],
+              "oncePerVisit": false
+            }
+          ],
+          "exits": [
+            {
+              "to": "b",
+              "requiredSignal": "bundle",
+              "condition": {
+                "all": [
+                  {
+                    "ref": {
+                      "symbol": "trust",
+                      "args": []
+                    },
+                    "op": "gte",
+                    "value": 0.3
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "startTrigger": "start:b",
+          "entryCondition": {
+            "all": [
+              {
+                "ref": {
+                  "symbol": "knowledge",
+                  "args": []
+                },
+                "op": "eq",
+                "value": true
+              }
+            ]
+          },
+          "entryAlternatives": [
+            {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "gte",
+                  "value": 0.3
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "door",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          ],
+          "endingId": "done",
+          "signals": [],
+          "exits": []
+        }
+      ]
+    },
+    "steps": [
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": null,
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "a"
+        ]
+      },
+      {
+        "command": {
+          "op": "start",
+          "id": "start:b"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": null,
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "a"
+        ]
+      },
+      {
+        "command": {
+          "op": "start",
+          "id": "start:a"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "unknown"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "[\"trust\"]"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.3,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.3,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "reverse",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.3,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "raise",
+          "key": "[\"trust\"]"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "raise",
+          "key": "[\"trust\"]"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "end",
+          "id": "wrong"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "end",
+          "id": "a"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": null,
+        "last": "a",
+        "completed": [
+          "a"
+        ],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "start",
+          "id": "start:b"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "b",
+        "last": "a",
+        "completed": [
+          "a"
+        ],
+        "ending": "done",
+        "available": []
+      }
+    ]
+  },
+  {
+    "name": "synthetic-23",
+    "chapter": {
+      "format": "chapter-gameplay-v1",
+      "startEventId": "a",
+      "initialState": [
+        {
+          "ref": {
+            "symbol": "knowledge",
+            "args": []
+          },
+          "value": false
+        },
+        {
+          "ref": {
+            "symbol": "trust",
+            "args": []
+          },
+          "value": 0.2
+        },
+        {
+          "ref": {
+            "symbol": "door",
+            "args": []
+          },
+          "value": false
+        }
+      ],
+      "addedSymbols": [
+        {
+          "ref": {
+            "symbol": "knowledge",
+            "args": []
+          },
+          "name": "지식",
+          "meaning": "증거 확인",
+          "type": "boolean",
+          "initial": false,
+          "changeMode": "irreversible"
+        }
+      ],
+      "endings": [
+        {
+          "endingId": "done",
+          "condition": {
+            "all": [
+              {
+                "ref": {
+                  "symbol": "knowledge",
+                  "args": []
+                },
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "a",
+          "startTrigger": "start:a",
+          "entryCondition": {
+            "all": []
+          },
+          "endingId": null,
+          "signals": [
+            {
+              "id": "bundle",
+              "label": "조사",
+              "condition": {
+                "all": [
+                  {
+                    "ref": {
+                      "symbol": "knowledge",
+                      "args": []
+                    },
+                    "op": "eq",
+                    "value": false
+                  }
+                ]
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "knowledge",
+                    "args": []
+                  },
+                  "op": "set",
+                  "value": true
+                },
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "add",
+                  "value": 0.1
+                }
+              ],
+              "oncePerVisit": true
+            },
+            {
+              "id": "door",
+              "label": "열기",
+              "condition": {
+                "all": []
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "door",
+                    "args": []
+                  },
+                  "op": "set",
+                  "value": true
+                }
+              ],
+              "oncePerVisit": false
+            },
+            {
+              "id": "reverse",
+              "label": "취소",
+              "condition": {
+                "all": []
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "knowledge",
+                    "args": []
+                  },
+                  "op": "set",
+                  "value": false
+                }
+              ],
+              "oncePerVisit": false
+            },
+            {
+              "id": "raise",
+              "label": "증가",
+              "condition": {
+                "all": []
+              },
+              "effects": [
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "add",
+                  "value": 0.8
+                }
+              ],
+              "oncePerVisit": false
+            }
+          ],
+          "exits": [
+            {
+              "to": "b",
+              "requiredSignal": "bundle",
+              "condition": {
+                "all": [
+                  {
+                    "ref": {
+                      "symbol": "trust",
+                      "args": []
+                    },
+                    "op": "gte",
+                    "value": 0.3
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "b",
+          "startTrigger": "start:b",
+          "entryCondition": {
+            "all": [
+              {
+                "ref": {
+                  "symbol": "knowledge",
+                  "args": []
+                },
+                "op": "eq",
+                "value": true
+              }
+            ]
+          },
+          "entryAlternatives": [
+            {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "trust",
+                    "args": []
+                  },
+                  "op": "gte",
+                  "value": 0.3
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "ref": {
+                    "symbol": "door",
+                    "args": []
+                  },
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          ],
+          "endingId": "done",
+          "signals": [],
+          "exits": []
+        }
+      ]
+    },
+    "steps": [
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": null,
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "a"
+        ]
+      },
+      {
+        "command": {
+          "op": "start",
+          "id": "start:b"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": null,
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "a"
+        ]
+      },
+      {
+        "command": {
+          "op": "start",
+          "id": "start:a"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "unknown"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": false,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.2,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": []
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.3,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "bundle"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.3,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "reverse",
+          "key": "[\"knowledge\"]"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 0.3,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "raise",
+          "key": "[\"trust\"]"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "signal",
+          "id": "raise",
+          "key": "[\"trust\"]"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "end",
+          "id": "wrong"
+        },
+        "ok": false,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "a",
+        "last": null,
+        "completed": [],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "end",
+          "id": "a"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": null,
+        "last": "a",
+        "completed": [
+          "a"
+        ],
+        "ending": null,
+        "available": [
+          "b"
+        ]
+      },
+      {
+        "command": {
+          "op": "start",
+          "id": "start:b"
+        },
+        "ok": true,
+        "state": {
+          "[\"knowledge\"]": true,
+          "[\"trust\"]": 1,
+          "[\"door\"]": false
+        },
+        "active": "b",
+        "last": "a",
+        "completed": [
+          "a"
+        ],
+        "ending": "done",
+        "available": []
+      }
+    ]
+  }
+]

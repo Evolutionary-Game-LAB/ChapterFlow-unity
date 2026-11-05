@@ -1,0 +1,1 @@
+{"name":"ChapterFlow.QuickStart.Editor","references":["ChapterFlow.Core","ChapterFlow.Unity","ChapterFlow.QuickStart"],"includePlatforms":["Editor"]}
