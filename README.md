@@ -1,71 +1,188 @@
-# ChapterFlow Unity Runtime 0.1.1
+<h1 align="center">ChapterFlow Unity</h1>
 
-웹에서 내보낸 ChapterFlow JSON을 Unity에서 읽고, 게임 행동에 따라 심볼과 사건 진행을 관리하는 오프라인 플러그인입니다. 런타임 LLM/API 키는 필요 없습니다. 현재 준비 대상은 Unity이며 Unreal 플러그인은 포함하지 않습니다.
+<p align="center">
+  <strong>생성된 챕터를 실제 게임플레이로</strong><br>
+  게임 행동에 따른 심볼 변화와 사건 진행을 관리하는 Unity 런타임
+</p>
 
-## 설치와 예제
+<p align="center">
+  <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
+  <img alt="Unity 2022.3 minimum declared" src="https://img.shields.io/badge/Unity-2022.3%2B-222222?logo=unity&logoColor=white">
+  <img alt="Runtime 0.1.1" src="https://img.shields.io/badge/Runtime-0.1.1-0f766e">
+</p>
 
-Unity Package Manager에서 **Install package from git URL** (버전에 따라 **Add package from git URL**)을 선택하고 다음 주소를 입력합니다. 저장소에 패키지 업로드가 완료된 후 사용할 수 있습니다.
+<p align="center">
+  <a href="#빠른-시작">빠른 시작</a> ·
+  <a href="#실행-흐름">실행 흐름</a> ·
+  <a href="#게임-연결">게임 연결</a> ·
+  <a href="https://github.com/Evolutionary-Game-LAB/ChapterFlow-generator">챕터 생성기</a>
+</p>
+
+---
+
+**ChapterFlow Unity**는 ChapterFlow JSON을 가져와 게임 행동, 심볼 상태, 사건 시작·종료와 진행 저장을 연결하는 Unity 플러그인. 생성된 실행 규칙을 사용하는 오프라인 런타임으로, 플레이 중 LLM 호출이나 API 키 불필요.
+
+## 주요 기능
+
+| 기능 | 내용 |
+| --- | --- |
+| **챕터 임포트** | ChapterFlow JSON을 `.chapterflow` 에셋 또는 `TextAsset`으로 로딩 |
+| **허용된 상태 변경** | 현재 사건에 선언된 신호 실행 및 심볼별 변화 처리 |
+| **명시적 사건 진행** | 게임의 종료 요청과 다음 사건 시작 요청을 독립적으로 처리 |
+| **조건 기반 진입** | 현재 상태와 사건 연결에 따른 진입 가능 여부 검사 |
+| **진행 저장·복원** | 심볼 상태, 사건 진행 및 부분 실행 이력 저장 |
+| **Unity 연동** | `UnityEvent`, 사건 바인딩, 런타임 디버거와 Quick Start 샘플 제공 |
+
+## 실행 흐름
+
+게임이 행동과 진행 시점을 결정하고, 플러그인이 챕터의 실행 규칙을 검사하는 구조.
+
+```mermaid
+flowchart LR
+    subgraph INPUT["게임에서 전달"]
+        START["사건 시작 요청"]
+        PLAY["게임플레이 신호"]
+        ENDREQ["사건 종료 요청"]
+    end
+
+    subgraph CORE["ChapterFlow Unity"]
+        ENTRY["진입 조건 검사"]
+        RULE["변경 규칙 검사"]
+        ACTIVE["종료 대상 확인"]
+        STATE["상태 관리<br/>저장 · 복원"]
+        ENTRY --> STATE
+        RULE --> STATE
+        ACTIVE --> STATE
+    end
+
+    STARTED["사건 시작 이벤트"]
+    CHANGED["변경된 상태<br/>진입 가능 사건"]
+    ENDED["사건 종료 이벤트"]
+
+    START --> ENTRY
+    PLAY --> RULE
+    ENDREQ --> ACTIVE
+    STATE --> STARTED
+    STATE --> CHANGED
+    STATE --> ENDED
+
+    classDef input fill:#eff6ff,stroke:#60a5fa,color:#172554
+    classDef stage fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+    classDef focus fill:#fff7ed,stroke:#fb923c,color:#7c2d12
+    classDef output fill:#ecfdf5,stroke:#34d399,color:#064e3b
+    class START,PLAY,ENDREQ input
+    class ENTRY,RULE,ACTIVE stage
+    class STATE focus
+    class STARTED,CHANGED,ENDED output
+    style INPUT fill:transparent,stroke:transparent,color:#475569
+    style CORE fill:#f8fafc,stroke:#cbd5e1,color:#334155
+```
+
+**조건 충족은 진입 가능 상태를 의미하며, 실제 전환은 게임의 시작 요청으로 수행.** 상태 변경·사건 종료·다음 사건 시작을 분리하여 연출과 플레이 타이밍의 자유 확보.
+
+## 빠른 시작
+
+| 항목 | 기준 |
+| --- | --- |
+| 패키지 | `com.chapterflow.runtime` · `0.1.1` |
+| 최소 Unity 버전 선언 | Unity 2022.3 · C# 9 |
+| 실제 Editor 검증 환경 | Unity 6000.6.6f1 |
+| 의존성 | `com.unity.nuget.newtonsoft-json` 3.2.2 |
+
+### 1. 패키지 설치
+
+Unity Package Manager의 **Install package from git URL** 또는 **Add package from git URL**에 다음 주소 입력.
 
 ```text
 https://github.com/Evolutionary-Game-LAB/ChapterFlow-unity.git
 ```
 
-로컬 폴더로 설치하려면 **Install package from disk**에서 이 폴더의 `package.json`을 선택합니다. 샘플 `ChapterFlow Quick Start`를 Import하고 `Tools > ChapterFlow > Create Quick Start Scene`으로 샘플 씬을 만듭니다.
+로컬 설치 경로: 저장소 클론 → **Install package from disk** → 루트의 `package.json` 선택.
 
-챕터를 직접 생성하려면 [ChapterFlow-generator](https://github.com/Evolutionary-Game-LAB/ChapterFlow-generator)를 참조하세요. 플러그인 문제는 [Unity Issues](https://github.com/Evolutionary-Game-LAB/ChapterFlow-unity/issues)에 남길 수 있습니다.
+### 2. 샘플 실행
 
-웹의 JSON Export 파일은 `Tools > ChapterFlow > Import Web JSON…`으로 가져옵니다. 생성된 `.chapterflow` 에셋을 `ChapterRunner`의 Chapter에 지정합니다. `.json` TextAsset을 Chapter Json에 직접 지정할 수도 있습니다.
+1. Package Manager에서 **ChapterFlow Quick Start** 샘플 Import
+2. **Tools → ChapterFlow → Create Quick Start Scene** 선택
+3. 생성된 씬에서 Play 실행 및 게임플레이 신호·사건 전환 확인
 
-지원 선언: Unity 2022.3 이상, C# 9. 의존성은 Unity 공식 `com.unity.nuget.newtonsoft-json` 3.2.2입니다. 지원 선언과 실제 검증 범위는 다릅니다. 아래 검증 범위를 먼저 확인하세요.
+### 3. 생성한 챕터 연결
+
+1. ChapterFlow 웹툴 또는 [Generator](https://github.com/Evolutionary-Game-LAB/ChapterFlow-generator)에서 JSON 준비
+2. **Tools → ChapterFlow → Import Web JSON...** 메뉴로 임포트
+3. 생성된 `.chapterflow` 에셋을 `ChapterRunner`의 **Chapter** 필드에 지정
+4. 사건 시작·종료와 게임플레이 신호를 버튼·상호작용·연출에 연결
+
+`.json` 파일을 `TextAsset`으로 가져와 **Chapter Json** 필드에 직접 지정하는 방식도 지원. **Tools → ChapterFlow → Runtime Debugger**에서 실행 상태 확인 가능.
 
 ## 게임 연결
 
+Quick Start의 [신호 실험실](Samples~/QuickStart/signal-lab.json) 기준 예시. `runner`는 챕터 에셋이 지정된 `ChapterFlow.Unity.ChapterRunner` 참조.
+
 ```csharp
-// 실제 챕터의 signal ID와 심볼 ID/args를 사용합니다.
-string symbolKey = ChapterFlow.ChapterDefinition.SymbolKey("evidence");
-runner.TrySendSymbolGameplay("read_evidence", symbolKey);
-// 종료와 다음 시작은 엔진에서 별도 제어합니다.
-runner.EndCurrentEvent();
-runner.StartEvent("start:next_event");
+// 챕터 초기화와 첫 사건 시작
+if (!runner.InitializeChapter()) return;
+runner.StartFirstEvent();
+
+// 출입증 획득 행동에 연결할 심볼 변화
+string badgeKey = ChapterFlow.ChapterDefinition.SymbolKey("badge");
+if (!runner.TrySendSymbolGameplay("find_badge", badgeKey)) return;
+
+// 사건 마무리와 다음 사건 시작: 게임의 각 타이밍에 연결할 별도 명령
+if (!runner.TryEndEvent(runner.Session.ActiveEventId)) return;
+runner.TryStartEvent("start:control");
 ```
 
-| API | 의미 |
-|---|---|
-| `TrySendSymbolGameplay(signalId, symbolKey)` | 현재 신호가 허용한 **해당 심볼만** 변경. 웹의 심볼별 실행 버튼과 동일 |
-| `TrySendGameplay(signalId)` / `SendGameplay(signalId)` | 해당 신호의 남은 효과 전체 실행. 기존 통합 게임 행동 호환 |
-| `EndCurrentEvent()` / `EndEvent(id)` | 현재 사건 종료. 다음 사건으로 자동 이동하지 않음 |
-| `StartEvent(trigger)` | 연결/진입/결말 조건을 검사한 뒤 시작 |
-| `Session.GetAvailableEvents()` | 현재 상태 기준으로 종료 후 진입 가능한 사건 조회 |
-| `CaptureSaveJson()` / `RestoreSaveJson(json)` | 진행 상태 문자열 저장/복원 |
+위 코드는 샘플 호출 순서이며, 실제 게임에서는 각 명령을 해당 상호작용 시점에 배치. 다른 챕터에서는 해당 JSON의 신호 ID·심볼 키·시작 트리거 사용.
 
-`Session.ReceiveGameplaySignal(id, key)`와 `Session.GetSignalBlocker(id, key)`도 같은 단일 심볼 선택을 지원합니다. 심볼 키를 지정하지 않으면 기존 묶음 신호 방식입니다. 허용되지 않은 심볼이나 임의의 값을 넣어 상태를 바꿀 수 없습니다.
+| API | 역할 |
+| --- | --- |
+| `TrySendSymbolGameplay(signalId, symbolKey)` | 신호에 선언된 특정 심볼의 효과만 실행 |
+| `TrySendGameplay(signalId)` | 신호에 남아 있는 효과 전체 실행 |
+| `EndCurrentEvent()` / `TryEndEvent(eventId)` | 현재 사건의 명시적 종료 |
+| `StartEvent(trigger)` / `TryStartEvent(trigger)` | 조건 검사 후 지정 사건 시작 |
+| `Session.GetAvailableEvents()` | 현재 상태 기준 진입 가능한 사건 조회 |
+| `CaptureSaveJson()` / `RestoreSaveJson(json)` | 진행 상태의 JSON 저장·복원 |
 
-여러 효과 중 하나를 실행했다고 나머지가 완료 처리되지 않습니다. 부분 실행 뒤 묶음 실행을 해도 이미 적용된 일회성 숫자 증감을 중복 적용하지 않습니다. 부분 실행 이력은 저장/복원됩니다. 신호의 다른 사전 조건과 되돌림 불가 규칙은 유지합니다.
+성공 여부 확인에는 `Try...` 메서드, Inspector의 버튼·UnityEvent 연결에는 `SendGameplay`, `EndCurrentEvent`, `StartEvent` 등의 `void` 메서드 사용.
 
-`OnEventStarted`, `OnEventEnded`, `OnGameplayReceived`, `OnStateChanged`, `OnEndingReached`, `OnSessionRestored`, `OnError` 이벤트로 게임 오브젝트/연출/UI를 연결합니다. `ChapterEventBinding`은 특정 사건 시작·종료를 UnityEvent에 연결합니다.
+**연출·UI 연결 이벤트:** `OnEventStarted`, `OnEventEnded`, `OnGameplayReceived`, `OnStateChanged`, `OnEndingReached`, `OnSessionRestored`, `OnError`. 특정 사건의 시작·종료 바인딩에는 `ChapterEventBinding` 활용.
 
-## 웹과의 의도된 차이
+## 실행 규칙과 저장
 
-웹은 편의를 위해 다음 사건 시작 버튼에서 현재 사건 종료와 다음 사건 시작을 함께 처리합니다. 플러그인은 두 명령을 별개로 유지합니다. 웹의 빈 START 게이트 자동 통과와 카메라/노드 강조는 UI 동작이며 엔진 규칙이 아닙니다. 동일한 명령 순서를 실행하면 심볼·허용 사건·결말 판정이 같아야 합니다.
+- 실행 기준은 JSON의 `gameplay` (`chapter-gameplay-v1`). 서사 문장으로부터 새로운 상태 변화를 추측하지 않는 방식
+- 허용 신호·사전 조건·되돌림 불가 규칙을 검사한 뒤 상태 변경
+- 여러 효과 중 일부 실행 후 나머지 효과의 후속 실행 지원 및 일회성 숫자 효과 중복 적용 방지
+- 웹 플레이 테스트의 편의상 자동 종료·시작과 달리, Unity에서는 두 요청의 독립 제어
 
-`gameplay.events[].signals`와 조건이 실행 기준입니다. 설명 문장으로 새 효과를 추측하지 않습니다. `requiredSignal`은 기존 생성 경로 추적용이며 실제 진입은 현재 상태로 판단합니다. `CONTRACT.md`를 함께 읽으세요.
+진행 저장 형식은 `chapterflow-unity-save-v1`. `0.1.1`에서 심볼별 부분 실행 기록인 `partialResults` 추가 및 이전 저장 읽기 지원. 부분 실행이 포함된 새 저장을 `0.1.0`으로 불러오는 방식은 미지원.
 
-## 저장 호환
-
-`chapterflow-unity-save-v1`에 선택적 `partialResults` 필드를 추가했습니다. 이전 저장은 계속 읽을 수 있습니다. 0.1.1에서 부분 실행한 새 저장은 0.1.0으로 불러오지 마세요. 챕터 fingerprint가 달라지면 이전 진행 불러오기를 거부합니다. 저장은 게임 월드 오브젝트를 자동 복원하지 않으므로 `OnSessionRestored`에서 별도로 동기화합니다.
+챕터 fingerprint 불일치 시 복원 거부. 게임 월드 오브젝트와 연출 상태는 `OnSessionRestored`에서 별도 동기화 필요.
 
 ## 검증
 
-2026-11-03 현재 웹 런타임과 저장된 기차역/인질 챕터를 **묶음 실행 + 심볼별 실행**으로 비교했습니다. 24개 시나리오, 446개 명령, 매 단계 저장/복원 446회 및 기존 코어 계약 검사 53개가 통과했습니다. 새 LLM 호출 없이 저장 결과를 사용했습니다.
+2026-11-03 공개 준비 시 수행한 검증 기록:
 
-독립적으로 실행할 공개 합성 테스트:
+| 범위 | 결과 |
+| --- | --- |
+| 저장된 챕터의 웹·C# 실행 비교 | 24개 시나리오 · 446개 명령 통과 |
+| 매 단계 저장·복원 | 446회 통과 |
+| 기존 코어 계약 검사 | 53개 통과 |
+| Unity Editor 임포트·Play | Unity 6000.6.6f1에서 챕터 4개 · Runner 14개 명령 검증 |
+
+공개 합성 테스트 실행 방법:
 
 ```sh
 dotnet run --project Verification~/Parity.csproj -- Verification~/fixtures/parity-cases.json Samples~/QuickStart/signal-lab.json
 ```
 
-검증 도구는 .NET 10 SDK가 필요하며 Unity 패키지 자체가 .NET 10을 요구하는 것은 아닙니다. 인질 챕터 등 비공개 실험 파일은 공개 저장소에 넣지 않았습니다. Unity 6000.6.6f1의 별도 임시 프로젝트에서 실제 패키지 임포트와 Play 모드 Runner 시험도 통과했습니다(챕터 4개, 명령 14개, 저장/복원, 상태·시작·결말 이벤트). Player/IL2CPP 및 다른 Unity 버전은 미검증입니다.
+검증 도구에만 .NET 10 SDK 필요. 위 결과는 저장된 챕터·합성 사례 기준이며, 새로운 LLM 생성 품질 검증은 제외. Unity Player 빌드·IL2CPP·다른 Unity 버전은 미검증.
+
+## 문서와 관련 프로젝트
+
+- [실행 규칙](CONTRACT.md) · [JSON Schema](schemas/chapter-gameplay-v1.schema.json) · [검증 상세](VALIDATION.md) · [변경 기록](CHANGELOG.md)
+- [ChapterFlow Generator](https://github.com/Evolutionary-Game-LAB/ChapterFlow-generator) — 서사 개요를 분기 챕터로 변환하는 생성기
+- [Issues](https://github.com/Evolutionary-Game-LAB/ChapterFlow-unity/issues) — Unity 버전·재현 절차·최소 샘플을 포함한 오류 제보
 
 ## 라이선스
 
-이 프로젝트는 [Apache License 2.0](LICENSE)에 따라 배포됩니다. 외부 의존성은 각 패키지의 라이선스를 따릅니다. [THIRD-PARTY.md](THIRD-PARTY.md)를 참조하세요.
+[Apache License 2.0](LICENSE) 적용. 외부 의존성의 개별 라이선스 및 목록은 [THIRD-PARTY.md](THIRD-PARTY.md) 참조.
